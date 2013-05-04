@@ -30,9 +30,11 @@ result_insert <- function(input) {
     if (is.na(retval[["金額"]])) stop("請於「金額」欄位填入整數")
     if (input$type == extra_label[1]) { # add type
       if (input[["type-extra"]] == "") stop("請於「類別-備注」欄位填寫新增的類別名稱")
+      if (sum(extra_label %in% input[["type_extra"]]) > 0) stop(paste("欄位名稱不可以為「", paste(extra_label, collapse="」 或 「"), "」", sep=""))
       src <- read.csv(get_path("type.csv", mustWork=TRUE), stringsAsFactors=FALSE)
-      src$Name <- c(src$Name , input[["type-extra"]])
+      src <- rbind(src, data.frame(Name = input[["type-extra"]]))
       write.csv(src, file=get_path("type.csv", mustWork=TRUE), row.names=FALSE)
+      retval[["類別"]] <- input[["type-extra"]]
     }
     retval <- data.frame(retval, check.names=FALSE, stringsAsFactors=FALSE)
     if (file.exists(file_name)) {
@@ -45,6 +47,19 @@ result_insert <- function(input) {
 
 
 shinyServer(function(input, output) {
+  output[["type"]] <- renderUI({
+    type <- read.csv(get_path("type.csv", mustWork=TRUE), stringsAsFactors=FALSE)
+    list(
+      selectInput(inputId="type", label="類別", choices=c(type$Name, extra_label), multiple=FALSE),
+      textInput("type-extra", label="類別-備注", value="")
+    )
+  })
+  output[["out-account"]] <- renderUI({
+    list_account("out-account", "輸出帳戶")
+  })
+  output[["in-account"]] <- renderUI({
+    list_account("in-account", "輸入帳戶")
+  })
   output[["result"]] <- function() {
     switch(
       input$mode,

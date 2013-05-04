@@ -11,20 +11,10 @@ shinyUI({
           title="輸入資料", 
           value="data",
           datePicker("date", label="日期", default=format(Sys.Date()), format="yyyy-mm-dd"),
-          {
-            type <- read.csv(get_path("type.csv", mustWork=TRUE), stringsAsFactors=FALSE)
-            list(
-              selectInput(inputId="type", label="類別", choices=c(type$Name, extra_label), multiple=FALSE),
-              textInput("type-extra", label="類別-備注", value="")
-            )
-          },
+          htmlOutput("type"),
           textInput("value", label="金額", value=""),
-          {
-            list_account("out-account", "輸出帳戶")
-          },
-          {
-            list_account("in-account", "輸入帳戶")
-          },
+          htmlOutput("out-account"),
+          htmlOutput("in-account"),
           textInput("fee", label="手續費", value="0"),
           textInput("remark", label="其他備注", value="無"),
           submit_button
