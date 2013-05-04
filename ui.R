@@ -11,10 +11,10 @@ shinyUI({
           title="輸入資料", 
           value="data",
           datePicker("date", label="日期", default=format(Sys.Date()), format="yyyy-mm-dd"),
-          htmlOutput("type"),
+          htmlOutput("data_type"),
           textInput("value", label="金額", value=""),
-          htmlOutput("out-account"),
-          htmlOutput("in-account"),
+          htmlOutput("out_account"),
+          htmlOutput("in_account"),
           textInput("fee", label="手續費", value="0"),
           textInput("remark", label="其他備注", value="無"),
           submit_button
