@@ -29,33 +29,39 @@ shinyServer(function(input, output) {
     list_account("in-account", "輸入帳戶")
   })
   output[["result"]] <- renderUI({
-    query_date <- tryCatch({
-      return(as.Date(input$date))
-    }, error = function(e) {
-      return(NA)
-    })
-    if (is.na(query_date)) return(h1("日期格式必須為yyyy-mm-dd"))
-    tableOutput("history")
+    value <- as.integer(input$value)
+    browser()
+    if (is.na(value)) return(tableOutput("history")) else return(tableOutput("insert"))
   })
   output[["history"]] <- renderTable({
-    query_date <- as.Date(input$date)
+    query_date <- tryCatch({
+     as.Date(input$date)
+    }, error = function(e) {
+      NA
+    })
+    if (is.na(query_date)) stop("日期格式必須為yyyy-mm-dd")
+    file_name <- get_path(format(query_date, "%Y-%m.csv"), mustWork=FALSE)
+    if (file.exists(file_name)) {
+      retval <- read.csv(file=file_name, stringsAsFactors=FALSE)
+    } else {
+      stop("沒有本月資料")
+    }
+    return(retval)
+  })
+  output[["insert"]] <- renderTable({
+    query_date <- tryCatch({
+      as.Date(input$date)
+    }, error = function(e) {
+      NA
+    })
     if (is.na(query_date)) stop("日期格式必須為yyyy-mm-dd")
     file_name <- get_path(format(query_date, "%Y-%m.csv"), mustWork=FALSE)
     retval <- list("日期"=format(query_date), "類別"=input$type, "金額"=as.integer(input$value), "輸出帳戶"=input[["out-account"]], "輸入帳戶" = input[["in-account"]], "手續費" = input$fee, "其他備注" = input$remark)
-    if (is.na(retval[["金額"]])) { # 沒有輸入，單純查詢
-      if (file.exists(file_name)) {
-        retval <- read.csv(file=file_name, stringsAsFactors=FALSE)
-      } else {
-        stop("沒有資料")
-      }
-      return(retval)
-    } else { # 有輸入，需要加入資料庫
-      retval <- data.frame(retval, check.names=FALSE, stringsAsFactors=FALSE)
-      if (file.exists(file_name)) {
-        retval <- rbind(retval, read.csv(file=file_name, stringsAsFactors=FALSE))
-      }
-      write.csv(retval, file=file_name, row.names=FALSE, fileEncoding="utf-8")
-      return(retval)
+    retval <- data.frame(retval, check.names=FALSE, stringsAsFactors=FALSE)
+    if (file.exists(file_name)) {
+      retval <- rbind(retval, read.csv(file=file_name, stringsAsFactors=FALSE))
     }
+    write.csv(retval, file=file_name, row.names=FALSE, fileEncoding="utf-8")
+    return(retval)
   })
 })
