@@ -29,6 +29,8 @@ shinyServer(function(input, output) {
     list_account("in-account", "輸入帳戶")
   })
   output[["result"]] <- renderUI({
+    query_date <- as.Date(input$date)
+    if (is.na(query_date)) return(h1("日期格式必須為yyyy-mm-dd"))
     tableOutput("history")
   })
   output[["history"]] <- renderTable({
