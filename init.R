@@ -1,7 +1,9 @@
 library(shiny)
 library(shinyExt)
+
+source("config.R")
+
 get_path <- function(name, ...) {
-  root_path <- "記帳App"
   normalizePath(sprintf("%s/%s", root_path, name), ...)
 }
 extra_label <- c("無")
